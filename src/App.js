@@ -35,6 +35,7 @@ const Button = styled.button`
 const InputContainer = styled.div`
   display: flex;
   justify-content: center;
+  flex-direction: column;
   gap: 0.5rem;
 `;
 
@@ -63,10 +64,17 @@ const renderSuggestion = suggestion => (
   </div>
 );
 
+// TODO:
+// - Random start and end
+// - Back button to return to previous article
+// - Make sure all links are fetched - not just 500
+// - Logo and style (dark mode etc)
+// - Show and share score at the end
+// - Host on netlify
+
 function App() {
   const [start, setStart] = useState("Paul Dirac");
   const [end, setEnd] = useState("Nuclear Physics");
-  const [currentPlace, setCurrentPlace] = useState(start);
   const [input, setInput] = useState("");
   const [guess, setGuess] = useState(start);
   const [guesses, setGuesses] = useState([]);
