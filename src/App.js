@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import './Autosuggest.css';
 
 const Container = styled.div`
@@ -65,25 +65,46 @@ const renderSuggestion = suggestion => (
 );
 
 // TODO:
-// - Random start and end
+// - End point should not be totally random, jump random number of times from start
+// - Restrict categories - too hard now
 // - Back button to return to previous article
 // - Make sure all links are fetched - not just 500
 // - Logo and style (dark mode etc)
 // - Show and share score at the end
 // - Host on netlify
+const getRandomArticle = () => {
+    return axios.get("https://en.wikipedia.org/w/api.php?action=query&origin=*&list=random&format=json&rnnamespace=0&rnlimit=1")
+  } 
 
 function App() {
-  const [start, setStart] = useState("Paul Dirac");
-  const [end, setEnd] = useState("Nuclear Physics");
-  const [input, setInput] = useState("");
-  const [guess, setGuess] = useState(start);
+  const [start, setStart] = useState('');
+  const [end, setEnd] = useState('');
+  const [input, setInput] = useState('');
+  const [guess, setGuess] = useState('');
   const [guesses, setGuesses] = useState([]);
   const [gameOver, setGameOver] = useState(false);
   const [links, setLinks] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
-    console.log(guess)
+    getRandomArticle().then(
+      (result) => {
+        const title = result.data.query.random[0].title;
+        setGuess(title);
+        setStart(title);
+      }
+    ).catch(res => console.log(res));
+
+    getRandomArticle().then(
+      (result) => {
+        const title = result.data.query.random[0].title;
+        setEnd(title);
+      }
+    ).catch(res => console.log(res));
+  }, []);
+
+  useEffect(() => {
+    if (!guess) return;
     if (guess.toLowerCase() === end.toLowerCase()) {
       setGuesses(guesses => [...guesses, guess]);
       setGameOver(true)
@@ -95,7 +116,9 @@ function App() {
       const links = parseLinks(response);
       setLinks(links);
       setGuesses(guesses => [...guesses, guess]);
-    });
+    }).catch(
+      (res) => console.log(res)
+    );
   }, [guess]);
 
   const getSuggestions = value => {
