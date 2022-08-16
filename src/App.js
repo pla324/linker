@@ -2,10 +2,14 @@ import styled from "styled-components";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
 import { useMemo, useEffect, useState } from "react";
+import { ToastContainer, Flip } from "react-toastify";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import './Autosuggest.css';
 
 const Container = styled.div`
   display: flex;
+  text-align: center;
   justify-content: center;
   flex-direction: column;
   align-items: center;
@@ -156,6 +160,7 @@ function App() {
       setGuesses(guesses => [...guesses, guess]);
       setGameOver(true);
       console.log("YOU WON");
+      toast("🎉 Congrats! 🎉");
       return;
     }
 
@@ -205,6 +210,12 @@ function App() {
 
   return (
     <Container>
+      <ToastContainer
+        hideProgressBar
+        position="top-center"
+        transition={Flip}
+        autoClose={false}
+      />
       <Title>LINKER</Title>
       <p>{`${start} \u2192 ${end}`}</p>
       <InputContainer>
