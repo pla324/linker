@@ -9,6 +9,8 @@ import './Autosuggest.css';
 import useUrlState from '@ahooksjs/use-url-state';
 import { Routes, Route } from "react-router";
 import { BrowserRouter } from "react-router-dom";
+import { Button } from "./GlobalStyles";
+import { Share } from "./components/Share";
 
 const Container = styled.div`
   display: flex;
@@ -24,20 +26,6 @@ const Title = styled.div`
   font-size: 3rem;
 `;
 
-const Button = styled.button`
-  padding:10px;
-  border-radius: 10px;
-  border-width: 0px;
-  font-family: "Boston-Regular";
-  background-color: lightgrey;
-  :active {
-    background-color: darkgrey;
-  }
-  @media (prefers-color-scheme: dark) {
-    background-color: #1F2023;
-    color: #DADADA
-  }
-`;
 
 const InputContainer = styled.div`
   display: flex;
@@ -235,6 +223,11 @@ function App() {
       />
       <Title>{"[WikiLinker]"}</Title>
       <p>{`${endpoints.start} \u2192 ${endpoints.end}`}</p>
+      {gameOver && <Share 
+        start={endpoints.start}
+        end={endpoints.end}
+        score={score}
+      />}
       <InputContainer>
       <Button onClick={handleReload}>Reload</Button>
       <Autosuggest
