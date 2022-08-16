@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Helvetica';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Helvetica'), url('./fonts/Helvetica.otf') format('otf');
+}
+
 body {
   margin: 0;
   font-family: Helvetica, sans-serif;
