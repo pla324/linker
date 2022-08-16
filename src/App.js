@@ -124,6 +124,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [links, setLinks] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [score, setScore] = useState(0);
 
   useEffect(() => {
     const jumpThroughLinks = async (start, timesToJump) => {
@@ -157,10 +158,9 @@ function App() {
   useEffect(() => {
     if (!guess) return;
     if (guess.toLowerCase() === end.toLowerCase()) {
-      setGuesses(guesses => [...guesses, guess]);
       setGameOver(true);
       console.log("YOU WON");
-      toast("🎉 Congrats! 🎉");
+      toast(`🎉 Congrats! Score: ${score} 🎉`);
       return;
     }
 
@@ -184,6 +184,7 @@ function App() {
       setGuess(input);
       setGuesses(guesses => [...guesses, input]);
       setInput('');
+      setScore(score => score + 1);
     }
   }
 
@@ -198,6 +199,7 @@ function App() {
     const lastGuess = guesses[guesses.length - 2]
     setGuesses(guesses => guesses.filter(prev => prev !== guess))
     setGuess(lastGuess);
+    setScore(score => score + 1);
   }
 
   const inputProps = {
