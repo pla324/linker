@@ -11,6 +11,7 @@ import { Routes, Route } from "react-router";
 import { BrowserRouter } from "react-router-dom";
 import { Button } from "./GlobalStyles";
 import { Share } from "./components/Share";
+import { ShareSequence } from "./components/ShareSequence";
 import { NAME } from "./constants";
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -21,6 +22,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  margin-bottom: 1rem;
 `;
 
 const Title = styled.div`
@@ -90,6 +92,7 @@ const getAllLinks = async (title) => {
   while (contin) {
     await axios.get(getLinksUrl(title, continueString))
       .then(
+        // eslint-disable-next-line no-loop-func
         (response) => {
           const links = parseLinks(response);
           allLinks = [...allLinks, ...links];
@@ -129,6 +132,7 @@ function App() {
       let current = start;
       for (let i = 0; i < timesToJump; i++) {
         await axios.get(getLinksUrl(current))
+        // eslint-disable-next-line no-loop-func
         .then((response) => {
           const links = parseLinks(response);
           const randIndex = randomIndex(links);
@@ -255,6 +259,11 @@ function App() {
         </>
       ))}
       </GuessContainer>
+      {gameOver && 
+      <ShareSequence 
+        guesses={guesses}
+        score={score}
+      />}
     </Container>
   );
 

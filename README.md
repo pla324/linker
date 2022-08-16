@@ -1,5 +1,5 @@
 # How to play
-Play [here](https://wikilinker.netlify.app). Make your way from the starting article to the end in as few links as you can.
+Play [here](https://wikilinks.app). Make your way from the starting article to the end in as few links as you can.
 # TODO next
 - Hint for difficult start/end at the cost of score - short description
 - Refactor!
