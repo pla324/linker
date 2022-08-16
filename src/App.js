@@ -92,7 +92,6 @@ const getAllLinks = async (title) => {
   let allLinks = [];
   let continueString = '';
   while (contin) {
-    console.log("loopin")
     await axios.get(getLinksUrl(title, continueString))
       .then(
         (response) => {
@@ -126,7 +125,6 @@ function App() {
     const jumpThroughLinks = async (start, timesToJump) => {
       let current = start;
       for (let i = 0; i < timesToJump; i++) {
-        console.log(start);
         await axios.get(getLinksUrl(current))
         .then((response) => {
           const links = parseLinks(response);
@@ -139,10 +137,10 @@ function App() {
 
     getAllLinks('Wikipedia:Vital articles')
     .then((popularArticles) => {
-      console.log(popularArticles.length)
       const randIndex = randomIndex(popularArticles);
       const start = popularArticles[randIndex];
       setGuess(start);
+      setGuesses(guesses => [...guesses, start]);
       setStart(start);
       // TODO experiment with which is best
       // Small change of getting the same ones here
@@ -164,7 +162,6 @@ function App() {
     getAllLinks(guess)
     .then(links => setLinks(links))
     .catch((res) => console.log(res));
-    setGuesses(guesses => [...guesses, guess]);
 
   }, [guess]);
 
@@ -180,6 +177,7 @@ function App() {
   const handleGuess = () => {
     if (links.indexOf(input) !== -1) {
       setGuess(input);
+      setGuesses(guesses => [...guesses, input]);
       setInput('');
     }
   }
@@ -189,6 +187,13 @@ function App() {
       handleGuess();
     }
   };
+
+  const handleBack = e => {
+    if (guesses.length < 2) return;
+    const lastGuess = guesses[guesses.length - 2]
+    setGuesses(guesses => guesses.filter(prev => prev !== guess))
+    setGuess(lastGuess);
+  }
 
   const inputProps = {
     placeholder: 'Guess a linked article',
@@ -212,6 +217,7 @@ function App() {
         inputProps={inputProps}
       />
       <Button onClick={handleGuess}>Select</Button>
+      <Button onClick={handleBack}>Back up</Button>
       </InputContainer>
       <GuessContainer>
       {guesses?.map((guess, index) => (
