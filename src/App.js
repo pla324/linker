@@ -6,6 +6,9 @@ import { ToastContainer, Flip } from "react-toastify";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import './Autosuggest.css';
+import useUrlState from '@ahooksjs/use-url-state';
+import { Routes, Route } from "react-router";
+import { BrowserRouter } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -113,8 +116,8 @@ const getAllLinks = async (title) => {
 
 
 function App() {
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
+  const [endpoints, setEndpoints] = useUrlState({start: '',
+                                                end: ''});
   const [input, setInput] = useState('');
   const [guess, setGuess] = useState('');
   const [guesses, setGuesses] = useState([]);
@@ -122,6 +125,12 @@ function App() {
   const [links, setLinks] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [score, setScore] = useState(0);
+
+  useEffect(() => {
+    if (endpoints.start === '') return;
+    setGuess(endpoints.start);
+    setGuesses(guesses => [endpoints.start]);
+  },[endpoints]);
 
   useEffect(() => {
     const jumpThroughLinks = async (start, timesToJump) => {
@@ -137,24 +146,14 @@ function App() {
       return current;
     };
 
-    getAllLinks('Wikipedia:Vital articles')
-    .then((popularArticles) => {
-      const randIndex = randomIndex(popularArticles);
-      const start = popularArticles[randIndex];
-      setGuess(start);
-      setGuesses(guesses => [...guesses, start]);
-      setStart(start);
-      // TODO experiment with which is best
-      // Small change of getting the same ones here
-      setEnd(popularArticles[randomIndex(popularArticles)]);
-      // const timesToJump = Math.floor(Math.random() * 2) + 2; // 2 to 3 jumps
-      // jumpThroughLinks(start, timesToJump).then(end => setEnd(end));
-    });
+    if (endpoints.start === '' && endpoints.end === '') {
+      newEndpoints();
+    }
   }, []);
 
   useEffect(() => {
     if (!guess) return;
-    if (guess.toLowerCase() === end.toLowerCase()) {
+    if (guess.toLowerCase() === endpoints.end.toLowerCase()) {
       setGameOver(true);
       console.log("YOU WON");
       toast(`🎉 Congrats! Score: ${score} 🎉`);
@@ -175,6 +174,21 @@ function App() {
       link.toLowerCase().slice(0, inputLength) === inputValue
     );
   };
+
+  const newEndpoints = () => {
+    getAllLinks('Wikipedia:Vital articles')
+      .then((popularArticles) => {
+        const randIndex = randomIndex(popularArticles);
+        const startArticle = popularArticles[randIndex];
+        console.log(startArticle);
+        // setGuess(startArticle);
+        // setGuesses(guesses => [...guesses, startArticle]);
+        setEndpoints(endpoints => ({
+          start: startArticle,
+          end: popularArticles[randomIndex(popularArticles)]
+        }));
+      });
+  }
 
   const handleGuess = () => {
     if (links.indexOf(input) !== -1) {
@@ -199,6 +213,10 @@ function App() {
     setScore(score => score + 1);
   }
 
+  const handleReload = () => {
+    newEndpoints();
+  }
+
   const inputProps = {
     placeholder: 'Guess a linked article',
     value: input,
@@ -215,9 +233,10 @@ function App() {
         transition={Flip}
         autoClose={false}
       />
-      <Title>LINKER</Title>
-      <p>{`${start} \u2192 ${end}`}</p>
+      <Title>{"[WikiLinker]"}</Title>
+      <p>{`${endpoints.start} \u2192 ${endpoints.end}`}</p>
       <InputContainer>
+      <Button onClick={handleReload}>Reload</Button>
       <Autosuggest
         suggestions={suggestions}
         onSuggestionsFetchRequested={({value}) => setSuggestions(getSuggestions(value))}
@@ -239,6 +258,15 @@ function App() {
       </GuessContainer>
     </Container>
   );
+
 }
 
-export default App;
+export default () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
