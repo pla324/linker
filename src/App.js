@@ -12,7 +12,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Button } from "./GlobalStyles";
 import { Share } from "./components/Share";
 import { ShareSequence } from "./components/ShareSequence";
-import { NAME } from "./constants";
+import { NAME, HOW_TO_MESSAGE } from "./constants";
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 const Container = styled.div`
@@ -28,6 +28,7 @@ const Container = styled.div`
 const Title = styled.div`
   display: flex;
   font-size: 3rem;
+  cursor: pointer;
 `;
 
 
@@ -235,7 +236,7 @@ function App() {
         transition={Flip}
         autoClose={false}
       />
-      <Title>{`[${NAME}]`}</Title>
+      <Title onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>{`[${NAME}]`}</Title>
       <RefreshButton onClick={handleReload}><RefreshIcon /></RefreshButton>
       <div>{`${endpoints.start} \u2192 ${endpoints.end}`}</div>
       {gameOver && <Share 
