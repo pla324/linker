@@ -56,19 +56,18 @@ const renderSuggestion = suggestion => (
 );
 
 // TODO:
-// - End point should not be totally random, jump random number of times from start
-// - Restrict categories - too hard now
 // - Back button to return to previous article
-// - Make sure all links are fetched - not just 500
 // - Logo and style (dark mode etc)
 // - Show and share score at the end
-// - Host on netlify
 const getRandomArticle = () => {
     return axios.get("https://en.wikipedia.org/w/api.php?action=query&origin=*&list=random&format=json&rnnamespace=0&rnlimit=1")
   } 
 
 const popularArticlesUrl = (offset) => `https://en.wikipedia.org/w/api.php?action=query&origin=*&list=mostviewed&pvimoffset=${offset}&format=json&pvimlimit=500`
 
+const getLinksUrl = (title, continueString='') => (
+  `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${title}&pllimit=max${continueString !== '' ? `&plcontinue=${continueString}` : ''}`
+)
 const filterResponse = (articles) => articles.filter(article => article.ns === 0)
                                                           .map(article => article.title)
 
@@ -88,6 +87,29 @@ const parseLinks = (response) => {
   return links;
 }
 
+const getAllLinks = async (title) => {
+  let contin = true;
+  let allLinks = [];
+  let continueString = '';
+  while (contin) {
+    console.log("loopin")
+    await axios.get(getLinksUrl(title, continueString))
+      .then(
+        (response) => {
+          const links = parseLinks(response);
+          allLinks = [...allLinks, ...links];
+          if (response.data.continue) {
+            continueString = response.data.continue.plcontinue;
+          } else {
+            contin = false;
+          }
+        })
+      .catch(
+        (res) => console.log(res)
+      );
+  }
+  return allLinks;
+}
 
 
 function App() {
@@ -105,7 +127,7 @@ function App() {
       let current = start;
       for (let i = 0; i < timesToJump; i++) {
         console.log(start);
-        await axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${current}&pllimit=max`)
+        await axios.get(getLinksUrl(current))
         .then((response) => {
           const links = parseLinks(response);
           const randIndex = randomIndex(links);
@@ -114,17 +136,20 @@ function App() {
       }
       return current;
     };
-    axios.get(popularArticlesUrl(0))
-    .then((res) => {
-      console.log(res)
-      const popularArticles = filterResponse(res.data.query.mostviewed);
+
+    getAllLinks('Wikipedia:Vital articles')
+    .then((popularArticles) => {
+      console.log(popularArticles.length)
       const randIndex = randomIndex(popularArticles);
-      const start = popularArticles[randIndex]
+      const start = popularArticles[randIndex];
       setGuess(start);
       setStart(start);
-      const timesToJump = Math.floor(Math.random() * 3) + 2;
-      jumpThroughLinks(start, timesToJump).then(end => setEnd(end));
-    })
+      // TODO experiment with which is best
+      // Small change of getting the same ones here
+      setEnd(popularArticles[randomIndex(popularArticles)]);
+      // const timesToJump = Math.floor(Math.random() * 2) + 2; // 2 to 3 jumps
+      // jumpThroughLinks(start, timesToJump).then(end => setEnd(end));
+    });
   }, []);
 
   useEffect(() => {
@@ -136,31 +161,10 @@ function App() {
       return;
     }
 
-    const getAllLinks = async () => {
-      let contin = true;
-      let allLinks = [];
-      let continueString = '';
-      while (contin) {
-        console.log("loopin")
-        await axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${guess}&pllimit=max${continueString !== '' ? `&plcontinue=${continueString}` : ''}`)
-          .then(
-            (response) => {
-              const links = parseLinks(response);
-              allLinks = [...allLinks, ...links];
-              if (response.data.continue) {
-                continueString = response.data.continue.plcontinue;
-              } else {
-                contin = false;
-              }
-            })
-          .catch(
-            (res) => console.log(res)
-          );
-      }
-      setLinks(allLinks);
-      setGuesses(guesses => [...guesses, guess]);
-    }
-    getAllLinks().catch((res) => console.log(res));
+    getAllLinks(guess)
+    .then(links => setLinks(links))
+    .catch((res) => console.log(res));
+    setGuesses(guesses => [...guesses, guess]);
 
   }, [guess]);
 
