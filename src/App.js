@@ -12,6 +12,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Button } from "./GlobalStyles";
 import { Share } from "./components/Share";
 import { NAME } from "./constants";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const Container = styled.div`
   display: flex;
@@ -43,7 +44,9 @@ const GuessContainer = styled.div`
   gap: 0.5rem;
 `;
 
-
+const RefreshButton = styled.div`
+  cursor: pointer;
+`;
 
 const renderSuggestion = suggestion => (
   <div>
@@ -204,6 +207,8 @@ function App() {
 
   const handleReload = () => {
     newEndpoints();
+    setGameOver(false);
+    setScore(0);
   }
 
   const inputProps = {
@@ -223,14 +228,14 @@ function App() {
         autoClose={false}
       />
       <Title>{`[${NAME}]`}</Title>
-      <p>{`${endpoints.start} \u2192 ${endpoints.end}`}</p>
+      <RefreshButton onClick={handleReload}><RefreshIcon /></RefreshButton>
+      <div>{`${endpoints.start} \u2192 ${endpoints.end}`}</div>
       {gameOver && <Share 
         start={endpoints.start}
         end={endpoints.end}
         score={score}
       />}
       <InputContainer>
-      <Button onClick={handleReload}>Reload</Button>
       <Autosuggest
         suggestions={suggestions}
         onSuggestionsFetchRequested={({value}) => setSuggestions(getSuggestions(value))}
