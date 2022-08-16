@@ -46,6 +46,10 @@ const GuessContainer = styled.div`
   gap: 0.5rem;
 `;
 
+const StyledSuggest = styled(Autosuggest)`
+  color: #1a1a1a;
+`;
+
 const RefreshButton = styled.div`
   cursor: pointer;
 `;
@@ -220,7 +224,7 @@ function App() {
     value: input,
     onChange: (event, { newValue }) => setInput(newValue),
     onKeyDown: handleEnter,
-    disabled: gameOver
+    disabled: gameOver,
   };
 
   return (
@@ -240,7 +244,7 @@ function App() {
         score={score}
       />}
       <InputContainer>
-      <Autosuggest
+      <StyledSuggest
         suggestions={suggestions}
         onSuggestionsFetchRequested={({value}) => setSuggestions(getSuggestions(value))}
         onSuggestionsClearRequested={() => setSuggestions([])}
