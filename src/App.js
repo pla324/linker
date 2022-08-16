@@ -47,15 +47,6 @@ const GuessContainer = styled.div`
   gap: 0.5rem;
 `;
 
-const parseLinks = (response) => {
-  const pages = response.data.query.pages;
-  let links = [];
-  for (const pageCode in pages) {
-    const page = pages[pageCode];
-    links = [...links, ...page.links?.map(link => link.title)];
-  }
-  return links;
-}
 
 
 const renderSuggestion = suggestion => (
@@ -76,6 +67,29 @@ const getRandomArticle = () => {
     return axios.get("https://en.wikipedia.org/w/api.php?action=query&origin=*&list=random&format=json&rnnamespace=0&rnlimit=1")
   } 
 
+const popularArticlesUrl = (offset) => `https://en.wikipedia.org/w/api.php?action=query&origin=*&list=mostviewed&pvimoffset=${offset}&format=json&pvimlimit=500`
+
+const filterResponse = (articles) => articles.filter(article => article.ns === 0)
+                                                          .map(article => article.title)
+
+const randomIndex = (list) => {
+  const randomIndex = Math.floor(Math.random() * list.length)
+  return randomIndex;
+}
+
+const parseLinks = (response) => {
+  const pages = response.data.query.pages;
+  let links = [];
+  for (const pageCode in pages) {
+    const page = pages[pageCode];
+    const filteredLinks = page.links ? filterResponse(page.links) : [];
+    links = [...links, ...filteredLinks];
+  }
+  return links;
+}
+
+
+
 function App() {
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
@@ -87,38 +101,67 @@ function App() {
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
-    getRandomArticle().then(
-      (result) => {
-        const title = result.data.query.random[0].title;
-        setGuess(title);
-        setStart(title);
+    const jumpThroughLinks = async (start, timesToJump) => {
+      let current = start;
+      for (let i = 0; i < timesToJump; i++) {
+        console.log(start);
+        await axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${current}&pllimit=max`)
+        .then((response) => {
+          const links = parseLinks(response);
+          const randIndex = randomIndex(links);
+          current = links[randIndex];
+        })
       }
-    ).catch(res => console.log(res));
-
-    getRandomArticle().then(
-      (result) => {
-        const title = result.data.query.random[0].title;
-        setEnd(title);
-      }
-    ).catch(res => console.log(res));
+      return current;
+    };
+    axios.get(popularArticlesUrl(0))
+    .then((res) => {
+      console.log(res)
+      const popularArticles = filterResponse(res.data.query.mostviewed);
+      const randIndex = randomIndex(popularArticles);
+      const start = popularArticles[randIndex]
+      setGuess(start);
+      setStart(start);
+      const timesToJump = Math.floor(Math.random() * 3) + 2;
+      jumpThroughLinks(start, timesToJump).then(end => setEnd(end));
+    })
   }, []);
 
   useEffect(() => {
     if (!guess) return;
     if (guess.toLowerCase() === end.toLowerCase()) {
       setGuesses(guesses => [...guesses, guess]);
-      setGameOver(true)
+      setGameOver(true);
       console.log("YOU WON");
       return;
     }
-    axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${guess}&pllimit=max`).then(
-    (response) => {
-      const links = parseLinks(response);
-      setLinks(links);
+
+    const getAllLinks = async () => {
+      let contin = true;
+      let allLinks = [];
+      let continueString = '';
+      while (contin) {
+        console.log("loopin")
+        await axios.get(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${guess}&pllimit=max${continueString !== '' ? `&plcontinue=${continueString}` : ''}`)
+          .then(
+            (response) => {
+              const links = parseLinks(response);
+              allLinks = [...allLinks, ...links];
+              if (response.data.continue) {
+                continueString = response.data.continue.plcontinue;
+              } else {
+                contin = false;
+              }
+            })
+          .catch(
+            (res) => console.log(res)
+          );
+      }
+      setLinks(allLinks);
       setGuesses(guesses => [...guesses, guess]);
-    }).catch(
-      (res) => console.log(res)
-    );
+    }
+    getAllLinks().catch((res) => console.log(res));
+
   }, [guess]);
 
   const getSuggestions = value => {
@@ -131,7 +174,7 @@ function App() {
   };
 
   const handleGuess = () => {
-    if (links.indexOf(input) != -1) {
+    if (links.indexOf(input) !== -1) {
       setGuess(input);
       setInput('');
     }
