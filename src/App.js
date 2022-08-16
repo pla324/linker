@@ -27,8 +27,9 @@ const Container = styled.div`
 
 const Title = styled.div`
   display: flex;
-  font-size: 3rem;
+  font-size: 3.5rem;
   cursor: pointer;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 `;
 
 
@@ -236,7 +237,7 @@ function App() {
         transition={Flip}
         autoClose={false}
       />
-      <Title onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>{`[${NAME}]`}</Title>
+      <Title onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>{"["}<span>WikiLinks</span>{"]"}</Title>
       <RefreshButton onClick={handleReload}><RefreshIcon /></RefreshButton>
       <div>{`${endpoints.start} \u2192 ${endpoints.end}`}</div>
       {gameOver && <Share 
