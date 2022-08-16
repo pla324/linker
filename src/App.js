@@ -11,6 +11,7 @@ import { Routes, Route } from "react-router";
 import { BrowserRouter } from "react-router-dom";
 import { Button } from "./GlobalStyles";
 import { Share } from "./components/Share";
+import { NAME } from "./constants";
 
 const Container = styled.div`
   display: flex;
@@ -221,7 +222,7 @@ function App() {
         transition={Flip}
         autoClose={false}
       />
-      <Title>{"[WikiLinker]"}</Title>
+      <Title>{`[${NAME}]`}</Title>
       <p>{`${endpoints.start} \u2192 ${endpoints.end}`}</p>
       {gameOver && <Share 
         start={endpoints.start}

@@ -2,10 +2,11 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import React, { useMemo } from "react";
 import { toast } from "react-toastify";
 import { Button } from "../GlobalStyles";
+import {NAME, DOMAIN} from '../constants';
 
 const getShareString = (start, end, score) => {
-  let shareString = `[WikiLinker]\n${start} \u2192 ${end} in ${score} links!\n`;
-  const uri = encodeURI(`https://wikilinker.netlify.app/?end=${end}&start=${start}`)
+  let shareString = `[${NAME}]\n${start} \u2192 ${end} in ${score} links!\n`;
+  const uri = encodeURI(`${DOMAIN}/?end=${end}&start=${start}`)
   shareString += uri;
   return shareString;
 }
