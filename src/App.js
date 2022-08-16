@@ -59,10 +59,7 @@ const renderSuggestion = suggestion => (
   </div>
 );
 
-// TODO:
-// - Back button to return to previous article
-// - Logo and style (dark mode etc)
-// - Show and share score at the end
+
 const getRandomArticle = () => {
     return axios.get("https://en.wikipedia.org/w/api.php?action=query&origin=*&list=random&format=json&rnnamespace=0&rnlimit=1")
   } 
