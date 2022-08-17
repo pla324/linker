@@ -232,7 +232,7 @@ function App() {
         transition={Flip}
         autoClose={false}
       />
-      <Title onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>{"[Wiki\u2192Links]"}</Title>
+      <Title onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>{"[WikiLinks]"}</Title>
       <IconContainer>
         <HelpButton onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>
           <HelpIcon />
