@@ -65,13 +65,6 @@ const renderSuggestion = suggestion => (
   </div>
 );
 
-
-const getRandomArticle = () => {
-    return axios.get("https://en.wikipedia.org/w/api.php?action=query&origin=*&list=random&format=json&rnnamespace=0&rnlimit=1")
-  } 
-
-const popularArticlesUrl = (offset) => `https://en.wikipedia.org/w/api.php?action=query&origin=*&list=mostviewed&pvimoffset=${offset}&format=json&pvimlimit=500`
-
 const getLinksUrl = (title, continueString='') => (
   `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${title}&pllimit=max${continueString !== '' ? `&plcontinue=${continueString}` : ''}`
 )
@@ -120,8 +113,7 @@ const getAllLinks = async (title) => {
 
 
 function App() {
-  const [endpoints, setEndpoints] = useUrlState({start: '',
-                                                end: ''});
+  const [endpoints, setEndpoints] = useUrlState({start: '', end: ''});
   const [input, setInput] = useState('');
   const [guess, setGuess] = useState('');
   const [guesses, setGuesses] = useState([]);
@@ -137,20 +129,6 @@ function App() {
   },[endpoints]);
 
   useEffect(() => {
-    const jumpThroughLinks = async (start, timesToJump) => {
-      let current = start;
-      for (let i = 0; i < timesToJump; i++) {
-        await axios.get(getLinksUrl(current))
-        // eslint-disable-next-line no-loop-func
-        .then((response) => {
-          const links = parseLinks(response);
-          const randIndex = randomIndex(links);
-          current = links[randIndex];
-        })
-      }
-      return current;
-    };
-
     if (endpoints.start === '' && endpoints.end === '') {
       newEndpoints();
     }
@@ -160,8 +138,7 @@ function App() {
     if (!guess) return;
     if (guess.toLowerCase() === endpoints.end.toLowerCase()) {
       setGameOver(true);
-      console.log("YOU WON");
-      toast(`🎉 Congrats! Score: ${score} 🎉`);
+      toast(`🎉 Congrats! Score: ${score} 🎉`, {autoClose: 5000});
       return;
     }
 
@@ -185,9 +162,6 @@ function App() {
       .then((popularArticles) => {
         const randIndex = randomIndex(popularArticles);
         const startArticle = popularArticles[randIndex];
-        console.log(startArticle);
-        // setGuess(startArticle);
-        // setGuesses(guesses => [...guesses, startArticle]);
         setEndpoints(endpoints => ({
           start: startArticle,
           end: popularArticles[randomIndex(popularArticles)]
@@ -235,7 +209,6 @@ function App() {
   return (
     <Container>
       <ToastContainer
-        hideProgressBar
         position="top-center"
         transition={Flip}
         autoClose={false}
