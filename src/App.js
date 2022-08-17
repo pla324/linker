@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
-import { useMemo, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, Flip } from "react-toastify";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,8 +12,22 @@ import { BrowserRouter } from "react-router-dom";
 import { Button } from "./GlobalStyles";
 import { Share } from "./components/Share";
 import { ShareSequence } from "./components/ShareSequence";
-import { NAME, HOW_TO_MESSAGE } from "./constants";
+import { HOW_TO_MESSAGE } from "./constants";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+
+const HelpButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+`;
+
+const HelpIcon = styled(HelpOutlineIcon)`
+  @media (prefers-color-scheme: dark) {
+    color: #fff;
+  }
+`;
 
 const Container = styled.div`
   display: flex;
@@ -41,6 +55,11 @@ const InputContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   gap: 0.5rem;
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const GuessContainer = styled.div`
@@ -199,7 +218,7 @@ function App() {
   }
 
   const inputProps = {
-    placeholder: 'Guess a linked article',
+    placeholder: `Search links from ${guess}`,
     value: input,
     onChange: (event, { newValue }) => setInput(newValue),
     onKeyDown: handleEnter,
@@ -213,8 +232,13 @@ function App() {
         transition={Flip}
         autoClose={false}
       />
-      <Title onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>{"["}<span>WikiLinks</span>{"]"}</Title>
-      <RefreshButton onClick={handleReload}><RefreshIcon /></RefreshButton>
+      <Title onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>{"[Wiki\u2192Links]"}</Title>
+      <IconContainer>
+        <HelpButton onClick={() => toast(HOW_TO_MESSAGE, {autoClose: 10000})}>
+          <HelpIcon />
+        </HelpButton>
+        <RefreshButton onClick={handleReload}><RefreshIcon /></RefreshButton>
+      </IconContainer>
       <div>{`${endpoints.start} \u2192 ${endpoints.end}`}</div>
       {gameOver && <Share 
         start={endpoints.start}
