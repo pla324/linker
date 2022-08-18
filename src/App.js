@@ -84,9 +84,27 @@ const renderSuggestion = suggestion => (
   </div>
 );
 
-const getLinksUrl = (title, continueString='') => (
-  `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=links&meta=&titles=${title}&pllimit=max${continueString !== '' ? `&plcontinue=${continueString}` : ''}`
-)
+const getLinksUrl = (title, continueString='') => {
+  let url = "https://en.wikipedia.org/w/api.php";
+  const params = {
+    action: "query",
+    titles: `${title}`,
+    prop: "links",
+    format: "json",
+    pllimit: "max",
+  }
+  url += "?origin=*";
+  Object.keys(params).forEach(
+    key => {
+      url += `&${key}=${params[key]}`;
+    }
+  )
+  if (continueString !== '') {
+    url += `&plcontinue=${continueString}`
+  }
+  return url;
+}
+
 const filterResponse = (articles) => articles.filter(article => article.ns === 0)
                                                           .map(article => article.title)
 
