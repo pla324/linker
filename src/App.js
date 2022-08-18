@@ -78,6 +78,14 @@ const RefreshButton = styled.div`
   cursor: pointer;
 `;
 
+const Footer = styled.div`
+  bottom: 0px;
+  margin-top: auto;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 const renderSuggestion = suggestion => (
   <div>
     {suggestion}
@@ -288,6 +296,7 @@ function App() {
         guesses={guesses}
         score={score}
       />}
+      {gameOver && <Footer onClick={() => window.open("https://twitter.com/DoodleSci/")}>Send me feedback!</Footer>}
     </Container>
   );
 
